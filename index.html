@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEM-CAR Migration Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #1a1d25;
+    --border: #2a2d38;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --gold: #f5c842;
+    --text: #e8eaf0;
+    --muted: #6b7080;
+    --success: #00e599;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 80px; }
+
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 100px; padding: 6px 18px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 28px;
+  }
+
+  .header-badge::before {
+    content: ''; width: 7px; height: 7px;
+    background: var(--accent); border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:.5; transform:scale(.8); }
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 8vw, 90px);
+    line-height: 0.95; letter-spacing: 0.02em;
+    background: linear-gradient(135deg,#fff 0%,var(--accent) 60%,var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 20px;
+  }
+
+  .header-sub { font-size:15px; color:var(--muted); font-weight:300; letter-spacing:0.04em; }
+
+  .header-line {
+    width:60px; height:2px;
+    background: linear-gradient(90deg,var(--accent),transparent);
+    margin: 24px auto 0;
+  }
+
+  /* ── Steps ── */
+  .steps { display:flex; flex-direction:column; gap:2px; }
+
+  .step {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    transition: border-color .3s, transform .3s;
+    animation: fadeUp .5s ease both;
+  }
+
+  .step:hover { border-color: rgba(0,212,255,.3); transform: translateX(4px); }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .step:nth-child(1)  { animation-delay:.05s; }
+  .step:nth-child(2)  { animation-delay:.10s; }
+  .step:nth-child(3)  { animation-delay:.15s; }
+  .step:nth-child(4)  { animation-delay:.20s; }
+  .step:nth-child(5)  { animation-delay:.25s; }
+  .step:nth-child(6)  { animation-delay:.30s; }
+  .step:nth-child(7)  { animation-delay:.35s; }
+  .step:nth-child(8)  { animation-delay:.40s; }
+  .step:nth-child(9)  { animation-delay:.45s; }
+  .step:nth-child(10) { animation-delay:.50s; }
+
+  .step::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background: linear-gradient(180deg,var(--accent),var(--accent2));
+    opacity:0; transition:opacity .3s;
+  }
+  .step:hover::before { opacity:1; }
+
+  .step-inner { padding:28px 32px; }
+
+  .step-header { display:flex; align-items:flex-start; gap:20px; margin-bottom:16px; }
+
+  .step-number {
+    flex-shrink:0; width:44px; height:44px;
+    background: linear-gradient(135deg,var(--accent),#0099cc);
+    border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue',sans-serif; font-size:22px; color:#000;
+    letter-spacing:.05em; box-shadow: 0 4px 16px rgba(0,212,255,.25);
+  }
+
+  .step:nth-child(even) .step-number {
+    background: linear-gradient(135deg,var(--accent2),#cc4400);
+    box-shadow: 0 4px 16px rgba(255,107,53,.25);
+  }
+
+  .step-meta { flex:1; }
+
+  .step-title { font-size:17px; font-weight:600; color:#fff; line-height:1.3; margin-bottom:4px; }
+
+  .step-desc { font-size:14px; color:var(--muted); line-height:1.6; }
+
+  .step-desc a {
+    color:var(--accent); text-decoration:none;
+    border-bottom:1px solid rgba(0,212,255,.3);
+    transition:border-color .2s;
+  }
+  .step-desc a:hover { border-color:var(--accent); }
+
+  /* ── Step image — hidden until loaded, clickable to zoom ── */
+  .step-image {
+    display: none;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: zoom-in;
+    position: relative;
+  }
+
+  .step-image.visible { display: block; }
+
+  .step-image img {
+    display: block; width: 100%; height: auto;
+    transition: transform .35s ease;
+  }
+
+  .step-image:hover img { transform: scale(1.015); }
+
+  /* zoom icon badge */
+  .step-image::after {
+    content: '';
+    position: absolute; bottom: 10px; right: 12px;
+    width: 30px; height: 30px;
+    background: rgba(0,0,0,.6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3Cline x1='11' y1='8' x2='11' y2='14'/%3E%3Cline x1='8' y1='11' x2='14' y2='11'/%3E%3C/svg%3E") center/18px no-repeat;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+  }
+
+  .step-image:hover::after { opacity: 1; }
+
+  /* ── Lightbox ── */
+  .lightbox {
+    display: none;
+    position: fixed; inset: 0; z-index: 2000;
+    background: rgba(0,0,0,.93);
+    backdrop-filter: blur(10px);
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+
+  .lightbox.open {
+    display: flex;
+    animation: lbFadeIn .2s ease;
+  }
+
+  @keyframes lbFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .lightbox-img {
+    max-width: 92vw;
+    max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 8px 80px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.07);
+    cursor: default;
+    user-select: none;
+    animation: lbZoom .25s cubic-bezier(.22,1,.36,1);
+  }
+
+  @keyframes lbZoom {
+    from { transform: scale(.9); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+
+  .lightbox-close {
+    position: absolute; top: 18px; right: 22px;
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #fff; font-size: 20px; line-height: 1;
+    transition: background .2s, transform .2s;
+    z-index: 2001;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,.18); transform: scale(1.1); }
+
+  .lightbox-hint {
+    position: absolute; bottom: 18px;
+    font-size: 12px; color: rgba(255,255,255,.3);
+    font-family: 'DM Mono', monospace; letter-spacing: .06em;
+    pointer-events: none;
+  }
+
+  /* ── Warning ── */
+  .step-warning {
+    background: rgba(245,200,66,.06);
+    border: 1px solid rgba(245,200,66,.2);
+    border-radius: 10px; padding: 12px 16px;
+    margin-top: 14px; font-size:13px; color:var(--gold);
+    display:flex; align-items:center; gap:10px; font-weight:500;
+  }
+  .step-warning svg { flex-shrink:0; width:16px; height:16px; stroke:var(--gold); fill:none; stroke-width:2; }
+
+  /* ── Link button ── */
+  .step-link {
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:12px; padding:9px 16px;
+    background:rgba(0,212,255,.08);
+    border:1px solid rgba(0,212,255,.2); border-radius:8px;
+    font-size:12px; font-family:'DM Mono',monospace;
+    color:var(--accent); text-decoration:none;
+    transition:background .2s,border-color .2s;
+  }
+  .step-link:hover { background:rgba(0,212,255,.15); border-color:rgba(0,212,255,.4); }
+  .step-link svg { flex-shrink:0; width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2; }
+
+  /* ── Tags ── */
+  .tag {
+    display:inline-block; padding:3px 10px; border-radius:100px;
+    font-size:11px; font-weight:600; letter-spacing:.08em;
+    text-transform:uppercase; margin-top:8px;
+  }
+  .tag-required { background:rgba(255,107,53,.12); color:var(--accent2); border:1px solid rgba(255,107,53,.2); }
+  .tag-tool     { background:rgba(0,212,255,.08);  color:var(--accent);  border:1px solid rgba(0,212,255,.2); }
+  .tag-final    { background:rgba(0,229,153,.08);  color:var(--success); border:1px solid rgba(0,229,153,.2); }
+
+  /* ── Connector ── */
+  .connector { display:flex; justify-content:center; padding:6px 0; }
+  .connector::after {
+    content:''; width:1px; height:20px;
+    background:linear-gradient(180deg,rgba(0,212,255,.3),rgba(255,107,53,.3));
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top:60px; text-align:center; padding:32px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; position:relative; overflow:hidden;
+  }
+  .footer::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at center,rgba(0,212,255,.04) 0%,transparent 70%);
+  }
+  .footer p { font-size:13px; color:var(--muted); position:relative; }
+  .footer strong { color:var(--accent); }
+
+  /* ── Scroll progress ── */
+  .progress-bar {
+    position:fixed; top:0; left:0; height:3px; width:0;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    transition:width .15s; z-index:100;
+    box-shadow:0 0 12px var(--accent);
+  }
+
+  @media(max-width:600px){
+    .step-inner { padding:20px 18px; }
+    .header h1  { font-size:48px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-close" id="lb-close">&times;</div>
+  <img class="lightbox-img" id="lb-img" src="" alt="">
+  <span class="lightbox-hint">Click anywhere or press ESC to close</span>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-badge">Migration Protocol</div>
+    <h1>GEM-CAR<br>Data Transfer</h1>
+    <p class="header-sub">Step-by-step system migration guide · v2v.ca</p>
+    <div class="header-line"></div>
+  </div>
+
+  <div class="steps">
+
+    <!-- ───── STEP 1 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">01</div>
+          <div class="step-meta">
+            <div class="step-title">Create a Fresh System</div>
+            <div class="step-desc">Make sure the system you're using is brand new. Do not reuse any previously tested or used systems. Skip any cleanup steps.</div>
+          </div>
+        </div>
+        <div class="step-warning">
+          <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          Use a new, clean system only. No reuse. No cleanup required.
+        </div>
+        <span class="tag tag-required">Critical</span>
+        <div class="step-image">
+          <img src="step1.png" alt="Step 1" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 2 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">02</div>
+          <div class="step-meta">
+            <div class="step-title">Download GEM-Archive (Latest Version)</div>
+            <div class="step-desc">Download the latest version of <strong>gem-archive</strong> from the official GitHub releases page.</div>
+          </div>
+        </div>
+        <span class="tag tag-tool">Download</span>
+        <a class="step-link" href="https://github.com/v2v-technologies/GEM-ARCHIVES/releases" target="_blank">
+          <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          github.com/v2v-technologies/GEM-ARCHIVES/releases
+        </a>
+        <div class="step-image">
+          <img src="step2.png" alt="Step 2" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 3 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">03</div>
+          <div class="step-meta">
+            <div class="step-title">Open GEM-CAR Convert Tool</div>
+            <div class="step-desc">Navigate to the newly created system and open the <strong>GEM-CAR CONVERT</strong> tool from within the interface.</div>
+          </div>
+        </div>
+        <span class="tag tag-tool">Tool Access</span>
+        <div class="step-image">
+          <img src="step3.png" alt="Step 3" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 4 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">04</div>
+          <div class="step-meta">
+            <div class="step-title">Copy URL &amp; One-Time Use Key</div>
+            <div class="step-desc">Inside the GEM-CAR Convert tool, locate and <strong>copy both the URL and the One-Time Use Key</strong>. You'll need these in the next step.</div>
+          </div>
+        </div>
+        <span class="tag tag-required">Copy Credentials</span>
+        <div class="step-image">
+          <img src="step4.png" alt="Step 4" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 5 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">05</div>
+          <div class="step-meta">
+            <div class="step-title">Open GEM-Archive &amp; Paste Credentials</div>
+            <div class="step-desc">Open the <strong>gem-archive</strong> application. Paste the URL and the One-Time Use Key in their respective fields.</div>
+          </div>
+        </div>
+        <span class="tag tag-tool">Paste Credentials</span>
+        <div class="step-image">
+          <img src="step5.png" alt="Step 5" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 6 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">06</div>
+          <div class="step-meta">
+            <div class="step-title">Set Your Password and sysID</div>
+            <div class="step-desc">Obtain the password by contacting <a href="mailto:yahya@v2v.ca">yahya@v2v.ca</a>, then set it in the application.</div>
+          </div>
+        </div>
+        <span class="tag tag-required">Authentication</span>
+        <div class="step-image">
+          <img src="step6.png" alt="Step 6" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 7 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">07</div>
+          <div class="step-meta">
+            <div class="step-title">Select the Full .BAK File</div>
+            <div class="step-desc">Browse and select the <strong>complete .bak backup file</strong> you want to migrate. Make sure to select the full file, not a partial one.</div>
+          </div>
+        </div>
+        <span class="tag tag-required">File Selection</span>
+        <div class="step-image">
+          <img src="step7.png" alt="Step 7" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 8 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">08</div>
+          <div class="step-meta">
+            <div class="step-title">Select Transfer Options &amp; Region</div>
+            <div class="step-desc">Choose what data you want to transfer. Then set the <strong>default Country</strong> and <strong>Province</strong> from the provided dropdowns.</div>
+          </div>
+        </div>
+        <span class="tag tag-tool">Configuration</span>
+        <div class="step-image">
+          <img src="step8.png" alt="Step 8" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 9 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">09</div>
+          <div class="step-meta">
+            <div class="step-title">Click Transfer &amp; Wait</div>
+            <div class="step-desc">Click the <strong>Transfer</strong> button and wait for the process to complete. Do not close or interrupt the application during the transfer.</div>
+          </div>
+        </div>
+        <div class="step-warning">
+          <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          Do not close the application while transfer is in progress.
+        </div>
+        <div class="step-image">
+          <img src="step9.png" alt="Step 9" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- ───── STEP 10 ───── -->
+    <div class="step">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-number">10</div>
+          <div class="step-meta">
+            <div class="step-title">Log Completion in Google Sheets</div>
+            <div class="step-desc">Once the transfer is done, open the tracking spreadsheet and fill in the <strong>System ID</strong>, <strong>Date</strong>, and <strong>Done By</strong> fields.</div>
+          </div>
+        </div>
+        <a class="step-link" href="https://docs.google.com/spreadsheets/d/1CsKELHGQJI-CNLOZBkJxCoSEWfDsiqOqsPWUm78Sh10/edit?usp=sharing" target="_blank">
+          <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          Open Tracking Spreadsheet
+        </a>
+        <span class="tag tag-final">Final Step</span>
+        <div class="step-image">
+          <img src="step10.png" alt="Step 10" onload="this.closest('.step-image').classList.add('visible')" onerror="this.closest('.step-image').style.display='none'">
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /steps -->
+
+  <div class="footer">
+    <p>GEM-CAR Migration Protocol · For support contact <strong>yahya@v2v.ca</strong> · v2v.ca</p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  /* ── Scroll progress bar ── */
+  window.addEventListener('scroll', () => {
+    const max = document.body.scrollHeight - window.innerHeight;
+    document.getElementById('progress').style.width =
+      (max > 0 ? window.scrollY / max * 100 : 0) + '%';
+  });
+
+  /* ── Lightbox ── */
+  const lightbox = document.getElementById('lightbox');
+  const lbImg    = document.getElementById('lb-img');
+  const lbClose  = document.getElementById('lb-close');
+
+  function openLightbox(src) {
+    lbImg.src = src;
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* Click backdrop to close (not the image itself) */
+  lightbox.addEventListener('click', e => {
+    if (e.target !== lbImg) closeLightbox();
+  });
+
+  lbClose.addEventListener('click', closeLightbox);
+
+  /* ESC key */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  /* Wire up all step images — delegated so it works even after DOM changes */
+  document.querySelectorAll('.step-image').forEach(wrapper => {
+    wrapper.addEventListener('click', () => {
+      const img = wrapper.querySelector('img');
+      if (img && img.complete && img.naturalWidth > 0) {
+        openLightbox(img.src);
+      }
+    });
+  });
+</script>
+</body>
+</html>
